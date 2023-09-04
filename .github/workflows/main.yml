@@ -1,5 +1,7 @@
-name: Test
-on: [workflow_dispatch]
+name: CI
+on:
+  push:
+    branches: [ main ]
 
 jobs:
   TEST-Run:

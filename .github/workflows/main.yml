@@ -1,41 +1,47 @@
-name: CI
+name: Robot Framework
 
-# Controls when the workflow will run
 on:
-  # Triggers the workflow on push or pull request events but only for the "main" branch
   push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+    branches: [ master ]
 
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
-
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
-  build:
-    # The type of runner that the job will run on
-    runs-on: ubuntu-latest
+    test:
+        runs-on: ubuntu-latest
+        steps:
+        - uses: actions/checkout@v2
+        - name: Execute tests
+          uses: joonvena/robotframework-docker-action@v0.1
+          env:
+            BROWSER: chrome
+            ROBOT_TESTS_DIR: ${{ github.workspace }}/robot_tests
+            ROBOT_REPORTS_DIR: ${{ github.workspace }}/reports
+        - name: Upload test results
+          uses: actions/upload-artifact@v1
+          if: always()
+          with:
+            name: reports
+            path: ${{ github.workspace }}/reports
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
-    steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v3
-
-      #python and robotframework setup
-      - name: Set up Python 3.9
-        uses: actions/setup-python@v3
-        with:
-          python-version: 3.9
-          cache: 'pip'
-
-      - name: Install python dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-
-      - name: Run tests
-        run: |
-                 robot  TESTS
-
+    generate_report:
+        if: always()
+        needs: [test]
+        runs-on: ubuntu-latest
+        steps:
+        - name: Download reports
+          uses: actions/download-artifact@v1
+          with:
+            name: reports
+        - name: Get Repository Owner & Name
+          run: |
+            export OWNER="$(echo "${{ github.repository }}" | awk -F / '{print $1}' | sed -e "s/:refs//")"
+            export REPO="$(echo "${{ github.repository }}" | awk -F / '{print $2}' | sed -e "s/:refs//")"
+            echo "::set-env name=REPOSITORY_OWNER::$OWNER"
+            echo "::set-env name=REPOSITORY_NAME::$REPO"
+        - name: Send report to commit
+          uses: joonvena/robotframework-reporter-action@v0.1
+          env:
+            GH_ACCESS_TOKEN: ${{ secrets.TOKEN }}
+            REPO_OWNER: ${{ env.REPOSITORY_OWNER }}
+            COMMIT_SHA: ${{ github.sha }}
+            REPOSITORY: ${{ env.REPOSITORY_NAME }}
+            REPORT_PATH: reports

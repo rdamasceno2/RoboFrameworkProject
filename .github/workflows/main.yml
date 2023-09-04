@@ -1,3 +1,41 @@
-              - name: Robot Reporter
-                uses: joonvena/robotframework-reporter-action@v2.3
-            
+name: Robot Framework CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+    Run-Test:
+      runs-on: ubuntu-20.04
+      steps:
+        - name: Checkout repository
+          uses: actions/checkout@v1
+        - uses: actions/cache@v2
+          id: cache
+          with:
+            path: ~/.cache/pip
+            key: ${{ runner.os }}-pip-${{ hashFiles('**/requirement.txt') }}
+        - name: Install pip dependencies
+          run: |
+            pip install --upgrade pip
+            pip install -r requirement.txt
+        - name: Run Test
+          run: python -m robot --outputdir results testcases/functional_tests
+        - name: Run Test and create report
+          run: python -m robot -d reports -x junit-report.xml "testcases/functional_tests"
+        - name: Run Robot Framework tests and generate report
+          run: |
+             echo "ROBOT_RC=$?" >> "$GITHUB_ENV"  
+        # - name: If Auto Test Pass Rate Not 100%, Job Will Fail
+        #   if: env.ROBOT_RC != '0'
+        #   run: |
+        #     echo "Auto Test Pass Rate Not 100%, Please Check Test Result"
+        #     exit 1
+        - name: Publish test results
+          uses: actions/upload-artifact@v2
+          with:
+            name: robot-test-results
+            path: results

@@ -35,7 +35,7 @@ Should be able to Log Out
     crmApp.Login with valid Credentials    ${VALID_LOGIN_EMAIL}    ${VALID_LOGIN_PASSWORD}
     crmApp.Sign Out
 
-Should be able to add a new customer
+Should be able to add a new customer using Robot Framework
     [Documentation]    Test adding a new customer
     [Tags]             1003     Smoke       Contacts
     crmApp.Go to "Home" Page
@@ -43,7 +43,7 @@ Should be able to add a new customer
     crmApp.Add New Customer
     crmApp.Sign Out
 
-Should be able to add a new customer again
+Should be able to add a new customer using Python Code
     [Documentation]    Test adding a new customer
     [Tags]             1004    Smoke       Contacts
     crmApp.Go to "Home" Page

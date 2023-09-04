@@ -1,7 +1,7 @@
 *** Settings ***
 Library    SeleniumLibrary
 Library    Collections
-Library    Library/add_customer.py
+Library    ../../Library/add_customer.py
 
 *** Variables ***
 ${ADDCUSTOMER_HEADER_LABEL} =          Add Customer

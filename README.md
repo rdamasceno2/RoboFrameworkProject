@@ -9,4 +9,3 @@ pip install -r requirements.txt
 
 robot command
 robot -d Results --variablefile Files/env/mkt_dev_env.py   Tests/Domain/Domain.txt
-xzcx

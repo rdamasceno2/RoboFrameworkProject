@@ -23,9 +23,9 @@ jobs:
             pip install --upgrade pip
             pip install -r requirement.txt
         - name: Run Test
-          run: python -m robot --outputdir results testcases/functional_tests
+          run: python -m robot --outputdir results Tests/
         - name: Run Test and create report
-          run: python -m robot -d reports -x junit-report.xml "testcases/functional_tests"
+          run: python -m robot -d reports -x junit-report.xml "Tests/"
         - name: Run Robot Framework tests and generate report
           run: |
              echo "ROBOT_RC=$?" >> "$GITHUB_ENV"  

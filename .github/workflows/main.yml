@@ -21,10 +21,10 @@ jobs:
           with:
             name: reports
             path: ${{ github.workspace }}/reports
-
+    
     generate_report:
         if: always()
-        needs: [test]
+        needs: [test] 
         runs-on: ubuntu-latest
         steps:
         - name: Download reports
